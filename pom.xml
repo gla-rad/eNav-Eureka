@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>org.thls</groupId>
-	<artifactId>eNav</artifactId>
+	<artifactId>eNavEureka</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>eureka</name>
 	<description>THLS Eureka Server For e-Navigation</description>
