@@ -1,4 +1,4 @@
-package org.thls.eNav.config;
+package org.grad.eNav.eureka.config;
 
 import de.codecentric.boot.admin.server.config.AdminServerProperties;
 import org.springframework.context.annotation.Configuration;

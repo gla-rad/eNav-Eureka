@@ -1,4 +1,4 @@
-package org.thls.eNav;
+package org.grad.eNav.eureka;
 
 import de.codecentric.boot.admin.server.config.EnableAdminServer;
 import org.springframework.boot.SpringApplication;
