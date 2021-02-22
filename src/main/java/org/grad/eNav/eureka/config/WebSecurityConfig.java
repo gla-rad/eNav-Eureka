@@ -68,6 +68,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter  {
                 .authorizeRequests()
                 .antMatchers(this.adminServerProperties.getContextPath() + "/assets/**").permitAll()
                 .antMatchers(this.adminServerProperties.getContextPath() + "/login").permitAll()
+                .antMatchers(
+                        "/webjars/**",      //bootstrap
+                        "/js/**", 						//js files
+                        "/css/**", 						//css files
+                        "/favicon.ico",                 //the favicon
+                        "/actuator",                    //spring health actuator
+                        "/actuator/**"                   //spring health actuator
+                ).permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
