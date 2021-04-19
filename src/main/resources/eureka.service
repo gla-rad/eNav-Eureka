@@ -1,0 +1,9 @@
+[Unit]
+Description=e-Navigation Eureka Service
+After=syslog.target
+
+[Service]
+ExecStart=/opt/e-nav/eureka/eureka.jar
+
+[Install]
+WantedBy=multi-user.target
