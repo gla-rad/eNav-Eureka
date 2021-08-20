@@ -201,7 +201,6 @@ class WebSecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
                 .antMatchers(
                         "/eureka",       //registration endpoint
                         "/**/*.css",                //css files
-                        "/admin/applications",      //admin applications
                         "/admin/img/**",            //admin image files
                         "/admin/third-party/**"     //admin third parties
                 ).permitAll()
@@ -211,7 +210,7 @@ class WebSecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
                 )).permitAll()
                 .requestMatchers(EndpointRequest.toAnyEndpoint())
                 .hasRole("ACTUATOR")
-                .antMatchers("/admin")
+                .antMatchers("/admin", "/admin/**")
                 .hasRole("ADMIN")
                 .anyRequest()
                 .permitAll();
