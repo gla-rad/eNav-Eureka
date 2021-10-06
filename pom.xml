@@ -53,17 +53,6 @@
 			<artifactId>spring-cloud-starter</artifactId>
 		</dependency>
 
-		<!-- Eureka & Spring Boot Admin Dependencies -->
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.codecentric</groupId>
-			<artifactId>spring-boot-admin-starter-server</artifactId>
-			<version>${spring-boot-admin.version}</version>
-		</dependency>
-
 		<!-- Keycloak & Admin Client Dependencies -->
 		<dependency>
 			<groupId>org.keycloak</groupId>
@@ -73,6 +62,18 @@
 			<groupId>org.keycloak</groupId>
 			<artifactId>keycloak-admin-client</artifactId>
 			<version>${keycloak.version}</version>
+		</dependency>
+
+		<!-- Eureka & Spring Boot Admin Dependencies -->
+		<!-- Keep this after Keycloak otherwise we get Maven madness -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.codecentric</groupId>
+			<artifactId>spring-boot-admin-starter-server</artifactId>
+			<version>${spring-boot-admin.version}</version>
 		</dependency>
 
 		<dependency>
