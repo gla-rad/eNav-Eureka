@@ -21,8 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.OAuth2Constants;
-import org.keycloak.adapters.KeycloakConfigResolver;
-import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;
 import org.keycloak.adapters.springboot.KeycloakSpringBootProperties;
 import org.keycloak.adapters.springsecurity.KeycloakSecurityComponents;
 import org.keycloak.adapters.springsecurity.authentication.KeycloakAuthenticationProvider;
@@ -34,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.boot.actuate.info.InfoEndpoint;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -51,7 +50,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import java.security.Principal;
 
 /**
- * The Web Security Configuration.
+ * The Service Web Security Configuration.
  *
  * @author Nikolaos Vastardis (email: Nikolaos.Vastardis@gla-rad.org)
  */
@@ -59,6 +58,7 @@ import java.security.Principal;
 @Configuration
 @EnableWebSecurity
 @ComponentScan(basePackageClasses = KeycloakSecurityComponents.class)
+@ConditionalOnProperty(value = "keycloak.enabled", matchIfMissing = true)
 class WebSecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
 
     /**
@@ -81,16 +81,6 @@ class WebSecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
     @Override
     protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
         return new RegisterSessionAuthenticationStrategy(buildSessionRegistry());
-    }
-
-    /**
-     * Load Keycloak configuration from application.properties or application.yml
-     *
-     * @return The keycloak configuration resolver
-     */
-    @Bean
-    public KeycloakConfigResolver keycloakConfigResolver() {
-        return new KeycloakSpringBootConfigResolver();
     }
 
     /**
