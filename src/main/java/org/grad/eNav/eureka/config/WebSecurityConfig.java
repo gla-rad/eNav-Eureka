@@ -37,6 +37,7 @@ import org.springframework.context.annotation.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
 import org.springframework.security.core.session.SessionRegistry;
@@ -175,9 +176,35 @@ class WebSecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
     }
 
     /**
+     * Override this method to configure {@link WebSecurity} so that we ignore
+     * certain requests like swagger, css etc.
+     *
+     * @param webSecurity The web security
+     * @throws Exception Exception thrown while configuring the security
+     */
+    @Override
+    public void configure(WebSecurity webSecurity) throws Exception {
+        super.configure(webSecurity);
+        webSecurity
+                //This will not attempt to authenticate these end points.
+                //Saves on validation requests.
+                .ignoring()
+                .antMatchers(
+                        "/webjars/**",  //bootstrap
+                        "/css/**",                  //css files
+                        "/lib/**",                  //js files
+                        "/images/**",               //the images
+                        "/src/**",                  //the javascript sources
+                        "/admin/img/**",            //admin image files
+                        "/admin/third-party/**"     //admin third parties
+                );
+    }
+
+
+    /**
      * Specified the HTTP security configuration. All actuator endpoints apart
      * from the health and the info one are protected, while the admin menu
-     * required admin priviladges.
+     * required admin privileges.
      *
      * @param httpSecurity      The HTTP security
      * @throws Exception
@@ -189,10 +216,14 @@ class WebSecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers(
-                        "/eureka",       //registration endpoint
-                        "/**/*.css",                //css files
+                        "/webjars/**",   //bootstrap
+                        "/css/**",                  //css files
+                        "/lib/**",                  //js files
+                        "/images/**",               //the images
+                        "/src/**",                  //the javascript sources
                         "/admin/img/**",            //admin image files
-                        "/admin/third-party/**"     //admin third parties
+                        "/admin/third-party/**",    //admin third parties
+                        "/eureka"                  //registration endpoint
                 ).permitAll()
                 .requestMatchers(EndpointRequest.to( //
                         InfoEndpoint.class,         //info endpoints
