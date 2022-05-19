@@ -190,12 +190,10 @@ class WebSecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
                 //Saves on validation requests.
                 .ignoring()
                 .antMatchers(
-                        "/webjars/**",  //bootstrap
-                        "/css/**",                  //css files
-                        "/lib/**",                  //js files
-                        "/images/**",               //the images
-                        "/src/**",                  //the javascript sources
-                        "/admin/img/**",            //admin image files
+                        "/css/**",      //css files
+                        "/js/**",                   //js files
+                        "/admin/img/**",            //admin assets files
+                        "/admin/assets/**",         //admin image files
                         "/admin/third-party/**"     //admin third parties
                 );
     }
@@ -216,13 +214,11 @@ class WebSecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers(
-                        "/webjars/**",   //bootstrap
-                        "/css/**",                  //css files
-                        "/lib/**",                  //js files
-                        "/images/**",               //the images
-                        "/src/**",                  //the javascript sources
-                        "/admin/img/**",            //admin image files
-                        "/admin/third-party/**",    //admin third parties
+                        "/css/**",      //css files
+                        "/js/**",                  //js files
+                        "/admin/img/**",           //admin image files
+                        "/admin/assets/**",        //admin assets files
+                        "/admin/third-party/**",   //admin third parties
                         "/eureka"                  //registration endpoint
                 ).permitAll()
                 .requestMatchers(EndpointRequest.to( //
