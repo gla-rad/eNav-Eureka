@@ -226,7 +226,7 @@ class WebSecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
                         HealthEndpoint.class        //health endpoints
                 )).permitAll()
                 .requestMatchers(EndpointRequest.toAnyEndpoint())
-                .hasRole("ACTUATOR")
+                .hasRole("ACTUATOR_ADMIN")
                 .antMatchers("/admin", "/admin/**")
                 .hasRole("ADMIN")
                 .anyRequest()
