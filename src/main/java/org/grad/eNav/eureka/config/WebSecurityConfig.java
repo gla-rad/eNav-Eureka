@@ -18,6 +18,8 @@ package org.grad.eNav.eureka.config;
 
 import de.codecentric.boot.admin.server.web.client.HttpHeadersProvider;
 import lombok.extern.slf4j.Slf4j;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.OAuth2Constants;
@@ -29,11 +31,13 @@ import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.boot.actuate.info.InfoEndpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.*;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -48,7 +52,14 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
+import java.security.cert.CertificateException;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The Service Web Security Configuration.
@@ -61,6 +72,18 @@ import java.security.Principal;
 @ComponentScan(basePackageClasses = KeycloakSecurityComponents.class)
 @ConditionalOnProperty(value = "keycloak.enabled", matchIfMissing = true)
 class WebSecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
+
+    /**
+     * The Keycloak Trust Store.
+     */
+    @Value("${keycloak.truststore:#{null}}")
+    private Resource trustStore;
+
+    /**
+     * The Keycloak Trust Store Password.
+     */
+    @Value("${keycloak.truststore-password:}")
+    private String trustStorePassword;
 
     /**
      * A session based registry to be used by an authentication strategy.
@@ -112,19 +135,33 @@ class WebSecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
      * @return The keycloak admin bean
      */
     @Bean
-    public Keycloak keycloak(KeycloakSpringBootProperties props) {
+    public Keycloak keycloak(KeycloakSpringBootProperties props) throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
+        // Open the keystore with all the trusted certificates
+        final KeyStore ts = KeyStore.getInstance("JKS");
+        if(Objects.nonNull(this.trustStore)) {
+            ts.load(trustStore.getInputStream(), trustStorePassword.toCharArray());
+        }
+        // Setup the rest easy client to accept those certificates
+        final ResteasyClient resteasyClient = new ResteasyClientBuilder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .connectionPoolSize(1)
+                .trustStore(ts)
+                .hostnameVerification(ResteasyClientBuilder.HostnameVerificationPolicy.ANY)
+                .build();
+        // And finally build keycloak to use that rest-east client
         return KeycloakBuilder.builder()
                 .serverUrl(props.getAuthServerUrl())
                 .realm(props.getRealm())
                 .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
                 .clientId(props.getResource())
                 .clientSecret((String)props.getCredentials().get("secret"))
+                .resteasyClient(resteasyClient)
                 .build();
     }
 
     /**
      * Use {@link KeycloakAuthenticationProvider} to link to the keycloak
-     * authentication. It also appends the ROLE prexis to all authority
+     * authentication. It also appends the ROLE prefix to all authority
      * mappings.
      *
      * @param auth              The authentication manager builder
