@@ -49,7 +49,7 @@ with a non-recognised certificate a trust-store that contains this certificate
 has been included in the service. The trust-store was generated using the 
 following command:
 
-    keytool -import file keycloak-selfsigned.crt -alias keycloak_selfsigned -keystore mcpTrustStore
+    keytool -import -file keycloak-selfsigned.crt -alias keycloak_selfsigned -keystore mcpTrustStore
 
 After adding the generated trust-store into the resources of the service, the
 keycloak configuration was updated to pick it up:
