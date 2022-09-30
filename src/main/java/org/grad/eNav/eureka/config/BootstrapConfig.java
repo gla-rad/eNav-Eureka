@@ -43,15 +43,26 @@ public class BootstrapConfig {
         return new KeycloakSpringBootConfigResolver();
     }
 
+    /**
+     * Normally internal clients use plain HTTP but the API-Gateway might be
+     * configured with HTTPS. Assuming this service is not externally
+     * available, we can allow any type of SSL certificates, since the ones
+     * from the MCP don't usually have a hostname attributed.
+     *
+     * @return A custom HTTP connection with insecure trust manager policy
+     * @throws SSLException For any SSL Exceptions thrown
+     */
     @Bean
     public ClientHttpConnector customHttpClient() throws SSLException {
+        // Create the SSL Context
         SslContext sslContext = SslContextBuilder
                 .forClient()
                 .trustManager(InsecureTrustManagerFactory.INSTANCE)
                 .build();
-        HttpClient httpClient = HttpClient.create().secure(
-                ssl -> ssl.sslContext(sslContext)
-        );
+        // Create the HTTP client
+        HttpClient httpClient = HttpClient.create()
+                .secure(ssl -> ssl.sslContext(sslContext));
+        // And return the custom connector
         return new ReactorClientHttpConnector(httpClient);
     }
 }
