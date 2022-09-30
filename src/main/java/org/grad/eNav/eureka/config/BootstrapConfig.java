@@ -1,9 +1,17 @@
 package org.grad.eNav.eureka.config;
 
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.keycloak.adapters.KeycloakConfigResolver;
 import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.reactive.ClientHttpConnector;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import reactor.netty.http.client.HttpClient;
+
+import javax.net.ssl.SSLException;
 
 /**
  * The Boostrap Configuration.
@@ -35,4 +43,15 @@ public class BootstrapConfig {
         return new KeycloakSpringBootConfigResolver();
     }
 
+    @Bean
+    public ClientHttpConnector customHttpClient() throws SSLException {
+        SslContext sslContext = SslContextBuilder
+                .forClient()
+                .trustManager(InsecureTrustManagerFactory.INSTANCE)
+                .build();
+        HttpClient httpClient = HttpClient.create().secure(
+                ssl -> ssl.sslContext(sslContext)
+        );
+        return new ReactorClientHttpConnector(httpClient);
+    }
 }
