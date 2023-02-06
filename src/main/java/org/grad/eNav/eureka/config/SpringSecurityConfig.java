@@ -64,20 +64,11 @@ import org.springframework.web.filter.ForwardedHeaderFilter;
 @ConditionalOnProperty(value = "keycloak.enabled", matchIfMissing = true)
 class SpringSecurityConfig {
 
-    private static final String RESOURCE_ACCESS_CLAIM = "resource_access";
-    private static final String ROLES_CLAIM = "roles";
-
     /**
      * The default application name.
      */
     @Value("${spring.application.name:eureka}")
     private String appName;
-
-    /**
-     * The default application name.
-     */
-    @Value("${gla.rad.eureka.resources.open:/,/index,/webjars/**,/css/**,/lib/**,/images/**,/src/**}")
-    private String[] openResources;
 
     /**
      * The REST Template.
@@ -103,7 +94,7 @@ class SpringSecurityConfig {
     }
 
     /**
-     * Forwarded header filter filter registration bean.
+     * Forwarded header filter registration bean.
      * <p>
      * This corrects the urls produced by the microservice when accessed from a proxy server.
      * E.g. Api gateway:
