@@ -37,7 +37,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.session.SessionRegistryImpl;
-import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.web.SecurityFilterChain;
@@ -51,10 +50,8 @@ import org.springframework.web.filter.ForwardedHeaderFilter;
 /**
  * The Web Security Configuration.
  *
- * This is the security definition for the filter chains of the API gateway.
- * Therefore, is it slightly different from all the other microservice. It
- * is still required though that the actuator points are handled differently
- * so that the spingboot admin connection works properly.
+ * This is the security definition for the security configuration and the filter
+ * chains the service.
  *
  * @author Nikolaos Vastardis (email: Nikolaos.Vastardis@gla-rad.org)
  */
@@ -177,8 +174,8 @@ class SpringSecurityConfig {
         http.logout()
                 .deleteCookies("JSESSIONID")
                 .addLogoutHandler(keycloakLogoutHandler(restTemplate))
-                .logoutSuccessHandler(new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository))
                 .logoutSuccessUrl("/");
+//                .logoutSuccessHandler(new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository));
         // Require authentication for all requests
         http.authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers(EndpointRequest.to(
