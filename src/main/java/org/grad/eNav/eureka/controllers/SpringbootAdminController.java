@@ -16,28 +16,30 @@
 
 package org.grad.eNav.eureka.controllers;
 
+import jakarta.servlet.ServletException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
- * The Keycloak Controller.
+ * The Springboot Admin Controller.
  *
  * @author Nikolaos Vastardis (email: Nikolaos.Vastardis@gla-rad.org)
  */
 @Controller
-class KeycloakController {
+class SpringbootAdminController {
 
     /**
-     * Propagates the logout to the Keycloak infrastructure
+     * Propagates the springboot admin operation logout to the Keycloak
+     * infrastructure.
      *
      * @param request   The incoming logout request
      * @return A redirect to the admin page
-     * @throws Exception
+     * @throws ServletException for any keycloak logout exceptions
      */
     @PostMapping("/admin/logout")
-    public String logout(HttpServletRequest request) throws Exception {
+    public String logout(HttpServletRequest request) throws ServletException {
         request.logout();
         return "redirect:/";
     }
