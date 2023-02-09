@@ -16,6 +16,7 @@
 
 package org.grad.eNav.eureka.config;
 
+import de.codecentric.boot.admin.server.config.AdminServerProperties;
 import jakarta.servlet.DispatcherType;
 import org.grad.eNav.eureka.config.keycloak.KeycloakGrantedAuthoritiesMapper;
 import org.grad.eNav.eureka.config.keycloak.KeycloakJwtAuthenticationConverter;
@@ -25,6 +26,7 @@ import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointR
 import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.boot.actuate.info.InfoEndpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,10 +42,12 @@ import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.ForwardedHeaderFilter;
 
@@ -55,7 +59,7 @@ import org.springframework.web.filter.ForwardedHeaderFilter;
  *
  * @author Nikolaos Vastardis (email: Nikolaos.Vastardis@gla-rad.org)
  */
-@Configuration
+@Configuration()
 @EnableWebSecurity
 @EnableMethodSecurity
 @ConditionalOnProperty(value = "keycloak.enabled", matchIfMissing = true)
@@ -66,6 +70,23 @@ class SpringSecurityConfig {
      */
     @Value("${spring.application.name:eureka}")
     private String appName;
+
+    // Class Variables
+    private final AdminServerProperties adminServer;
+    private final SecurityProperties security;
+
+    /**
+     * The Class Constructor.
+     *
+     * @param adminServerProperties       The Springboot admin server properties
+     * @param securityProperties          The security properties
+     */
+    public SpringSecurityConfig(AdminServerProperties adminServerProperties,
+                                SecurityProperties securityProperties) {
+        this.adminServer = adminServerProperties;
+        this.security = securityProperties;
+
+    }
 
     /**
      * The REST Template.
@@ -165,9 +186,15 @@ class SpringSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http,
                                            ClientRegistrationRepository clientRegistrationRepository,
                                            RestTemplate restTemplate) throws Exception {
+        // Setup a login success handler
+        SavedRequestAwareAuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
+        successHandler.setTargetUrlParameter("redirectTo");
+        successHandler.setDefaultTargetUrl(this.adminServer.getContextPath() + "/");
+
         // Authenticate through configured OpenID Provider
         http.oauth2Login()
-                .loginPage("/oauth2/authorization/keycloak");
+                .loginPage("/oauth2/authorization/keycloak")
+                .successHandler(successHandler);
 //                .authorizationEndpoint().baseUri("/oauth2/authorization/keycloak")
 //                .authorizationRequestRepository(new HttpSessionOAuth2AuthorizationRequestRepository());
         // Also, logout at the OpenID Connect provider
@@ -183,18 +210,17 @@ class SpringSecurityConfig {
                                 HealthEndpoint.class    //health endpoints
                         )).permitAll()
                         .requestMatchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR")
+                        .requestMatchers(new AntPathRequestMatcher(this.adminServer.path("/assets/**"))).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher(this.adminServer.path("/variables.css"))).permitAll()
+                        .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
                         .requestMatchers(
                                 "/",              //root
                                 "/eureka/css/**",          //css files
                                 "/eureka/js/**",           //js files
-                                "/admin/img/**",           //admin image files
-                                "/admin/assets/**",        //admin assets files
-                                "/admin/third-party/**",   //admin third parties
                                 "/eureka"                  //registration endpoint
                         ).permitAll()
-                        .requestMatchers("/admin", "/admin/**")
-                        .hasRole("ADMIN")
-                        .anyRequest().fullyAuthenticated()
+                        .requestMatchers("/admin", "/admin/**").hasRole("ADMIN")
+                        .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer().jwt()
                 .jwtAuthenticationConverter(keycloakJwtAuthenticationConverter());
