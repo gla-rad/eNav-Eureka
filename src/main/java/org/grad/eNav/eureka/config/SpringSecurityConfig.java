@@ -73,7 +73,7 @@ class SpringSecurityConfig {
     /**
      * The default application name.
      */
-    @Value("${spring.application.name:eureka}")
+    @Value("${keycloak.clientId:eureka}")
     private String appName;
 
     // Class Variables
@@ -138,31 +138,33 @@ class SpringSecurityConfig {
     }
 
     /**
-     * This is a basic implementation of the OAuth2AuthorizedClientManager
-     * interface were the registered clients and authorised client services
-     * are provided into the bean. This can then be used by the service to
-     * allow access to the client authorised services so they can authorise
-     * our requests (mainly for Spring Boot Admin).
+     * The OAuth2 Authorized Client Manager bean provider. Since the new Spring
+     * Security 5 framework, we can use the OAuth2AuthorizedClientService
+     * class to authorize our clients, as long as the configuration is found
+     * in the application.properties file.
      *
-     * @param clientRegistrationRepository  the client registration repository
-     * @param authorizedClientService       the authorised client service
-     * @return the OAuth2AuthorizedClientManager interface implementation
+     * @param clientRegistrationRepository the client registration repository
+     * @param clientService the OAuth2 authorized client service
+     * @return the OAuth2 authorized client manager to authorize the feign requests
      */
     @Bean
     OAuth2AuthorizedClientManager authorizedClientManager(ClientRegistrationRepository clientRegistrationRepository,
-                                                          OAuth2AuthorizedClientService authorizedClientService) {
-        // Define a new OAuth2 Authorised Client Service Manager
+                                                          OAuth2AuthorizedClientService clientService) {
+        // First create an OAuth2 Authorized Client Provider
+        OAuth2AuthorizedClientProvider authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
+                .clientCredentials()
+                .build();
+
+        // Create a client manage to handle the Feign authorization
         AuthorizedClientServiceOAuth2AuthorizedClientManager authorizedClientManager = new AuthorizedClientServiceOAuth2AuthorizedClientManager(
                 clientRegistrationRepository,
-                authorizedClientService);
-
-        // Assign a new Authorised Client Provider
-        authorizedClientManager.setAuthorizedClientProvider(OAuth2AuthorizedClientProviderBuilder.builder()
-                .clientCredentials()
-                .build()
+                clientService
         );
 
-        // And return the output
+        // Set the client provider in the client
+        authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+
+        // And return
         return authorizedClientManager;
     }
 
