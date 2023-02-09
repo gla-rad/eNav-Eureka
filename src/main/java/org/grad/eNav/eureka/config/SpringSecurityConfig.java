@@ -74,7 +74,7 @@ class SpringSecurityConfig {
      * The default application name.
      */
     @Value("${keycloak.clientId:eureka}")
-    private String appName;
+    private String clientId;
 
     // Class Variables
     private final AdminServerProperties adminServer;
@@ -205,7 +205,7 @@ class SpringSecurityConfig {
      */
     @Bean
     protected Converter<Jwt, ? extends AbstractAuthenticationToken> keycloakJwtAuthenticationConverter() {
-        return new KeycloakJwtAuthenticationConverter(this.appName);
+        return new KeycloakJwtAuthenticationConverter(this.clientId);
     }
 
     /**
@@ -215,7 +215,7 @@ class SpringSecurityConfig {
      */
     @Bean
     protected GrantedAuthoritiesMapper keycloakGrantedAuthoritiesMapper() {
-        return new KeycloakGrantedAuthoritiesMapper(this.appName);
+        return new KeycloakGrantedAuthoritiesMapper(this.clientId);
     }
 
     /**
