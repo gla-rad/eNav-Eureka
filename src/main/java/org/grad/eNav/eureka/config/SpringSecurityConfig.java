@@ -17,10 +17,10 @@
 package org.grad.eNav.eureka.config;
 
 import de.codecentric.boot.admin.server.config.AdminServerProperties;
+import de.codecentric.boot.admin.server.web.client.HttpHeadersProvider;
 import jakarta.servlet.DispatcherType;
-import org.grad.eNav.eureka.config.keycloak.KeycloakGrantedAuthoritiesMapper;
-import org.grad.eNav.eureka.config.keycloak.KeycloakJwtAuthenticationConverter;
-import org.grad.eNav.eureka.config.keycloak.KeycloakLogoutHandler;
+import org.grad.eNav.eureka.config.keycloak.*;
+import org.grad.eNav.eureka.config.keycloak.KeycloakOAuth2AuthorizedClientProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.boot.actuate.health.HealthEndpoint;
@@ -33,13 +33,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.oauth2.client.*;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
@@ -51,6 +54,8 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.ForwardedHeaderFilter;
 
+import java.util.Optional;
+
 /**
  * The Web Security Configuration.
  *
@@ -59,7 +64,7 @@ import org.springframework.web.filter.ForwardedHeaderFilter;
  *
  * @author Nikolaos Vastardis (email: Nikolaos.Vastardis@gla-rad.org)
  */
-@Configuration()
+@Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @ConditionalOnProperty(value = "keycloak.enabled", matchIfMissing = true)
@@ -130,6 +135,65 @@ class SpringSecurityConfig {
         filterRegistrationBean.setDispatcherTypes(DispatcherType.REQUEST, DispatcherType.ASYNC, DispatcherType.ERROR);
         filterRegistrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE);
         return filterRegistrationBean;
+    }
+
+    /**
+     * This is a basic implementation of the OAuth2AuthorizedClientManager
+     * interface were the registered clients and authorised client services
+     * are provided into the bean. This can then be used by the service to
+     * allow access to the client authorised services so they can authorise
+     * our requests (mainly for Spring Boot Admin).
+     *
+     * @param clientRegistrationRepository  the client registration repository
+     * @param authorizedClientService       the authorised client service
+     * @return the OAuth2AuthorizedClientManager interface implementation
+     */
+    @Bean
+    OAuth2AuthorizedClientManager authorizedClientManager(ClientRegistrationRepository clientRegistrationRepository,
+                                                          OAuth2AuthorizedClientService authorizedClientService) {
+        // Define a new OAuth2 Authorised Client Service Manager
+        AuthorizedClientServiceOAuth2AuthorizedClientManager authorizedClientManager = new AuthorizedClientServiceOAuth2AuthorizedClientManager(
+                clientRegistrationRepository,
+                authorizedClientService);
+
+        // Assign a new Authorised Client Provider
+        authorizedClientManager.setAuthorizedClientProvider(OAuth2AuthorizedClientProviderBuilder.builder()
+                .clientCredentials()
+                .build()
+        );
+
+        // And return the output
+        return authorizedClientManager;
+    }
+
+    /**
+     * The Spring Boot Admin operation in our services is also bound by OAuth2
+     * and Keycloak. Therefore, for each request we need to service account
+     * access token (which is generated via a credential flow) to be added to
+     * the request headers. Spring Boot Admin allows us to add this manually
+     * using a HttpHeadersProvider bean. But be careful, by default Spring Boot
+     * Admin does not include the "Authorization" header in its requests, so
+     * we need to configure the application properties to block this
+     * functionality.
+     * <p/>
+     * spring.boot.admin.instance-proxy.ignored-headers=Cookie,Set-Cookie
+     *
+     * @param keycloakOAuth2AuthorizedClientProvider    The Keycloak OAuth2 Authorised Client provider
+     * @return the Spring Boot Admin HTTP header provider
+     */
+    @Bean
+    public HttpHeadersProvider SpringBootAdminHttpHeadersProvider(KeycloakOAuth2AuthorizedClientProvider keycloakOAuth2AuthorizedClientProvider) {
+        return instance -> {
+            HttpHeaders httpHeaders = new HttpHeaders();
+            Optional.of(keycloakOAuth2AuthorizedClientProvider)
+                    .map(KeycloakOAuth2AuthorizedClientProvider::getClient)
+                    .map(OAuth2AuthorizedClient::getAccessToken)
+                    .map(OAuth2AccessToken::getTokenValue)
+                    .ifPresent(token -> {
+                        httpHeaders.add("Authorization", "Bearer " + token);
+                    });
+            return httpHeaders;
+        };
     }
 
     /**
@@ -214,10 +278,11 @@ class SpringSecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher(this.adminServer.path("/variables.css"))).permitAll()
                         .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
                         .requestMatchers(
-                                "/",              //root
-                                "/eureka/css/**",          //css files
-                                "/eureka/js/**",           //js files
-                                "/eureka"                  //registration endpoint
+                                "/",        //root
+                                "/eureka/",          //registration endpoint
+                                "/eureka/apps/**",   //application endpoints
+                                "/eureka/css/**",    //css files
+                                "/eureka/js/**"      //js files
                         ).permitAll()
                         .requestMatchers("/admin", "/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()

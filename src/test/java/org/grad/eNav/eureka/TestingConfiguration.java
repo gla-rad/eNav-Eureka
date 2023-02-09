@@ -22,6 +22,7 @@ import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.eureka.EurekaServerContext;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 
 import static org.mockito.Mockito.mock;
 
@@ -72,6 +73,16 @@ public class TestingConfiguration {
     @Bean
     EurekaServerContext eurekaServerContext() {
         return mock(EurekaServerContext.class);
+    }
+
+    /**
+     * The OAuth2 Authorised Client Manager mock.
+     *
+     * @return  the OAuth2 Authorised Client Manager
+     */
+    @Bean
+    OAuth2AuthorizedClientManager oAuth2AuthorizedClientManager() {
+        return mock(OAuth2AuthorizedClientManager.class);
     }
 
 }
