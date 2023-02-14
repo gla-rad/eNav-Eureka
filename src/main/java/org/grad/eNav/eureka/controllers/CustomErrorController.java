@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Nikolaos Vastardis (email: Nikolaos.Vastardis@gla-rad.org)
  */
 @RestController
-class CustomErrorController implements ErrorController {
+public class CustomErrorController implements ErrorController {
 
     /**
      * The Error Mapping.
