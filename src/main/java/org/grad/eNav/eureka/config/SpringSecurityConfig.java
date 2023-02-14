@@ -284,7 +284,8 @@ class SpringSecurityConfig {
                                 "/eureka/",          //registration endpoint
                                 "/eureka/apps/**",   //application endpoints
                                 "/eureka/css/**",    //css files
-                                "/eureka/js/**"      //js files
+                                "/eureka/js/**",     //js files
+                                "/error"             //the error endpoint - to handle the eureka re-registrations problem
                         ).permitAll()
                         .requestMatchers("/admin", "/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
