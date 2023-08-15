@@ -1,6 +1,6 @@
 [Unit]
 Description=e-Navigation Eureka Service
-After=syslog.target
+After=syslog.target docker.service
 
 [Service]
 ExecStart=/opt/e-nav/eureka/eureka.jar
