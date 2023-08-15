@@ -3,6 +3,7 @@ Description=e-Navigation Eureka Service
 After=syslog.target docker.service
 
 [Service]
+ExecStartPre=/bin/sleep 10
 ExecStart=/opt/e-nav/eureka/eureka.jar
 
 [Install]
