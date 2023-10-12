@@ -17,10 +17,13 @@
 package org.grad.eNav.eureka;
 
 import com.netflix.appinfo.ApplicationInfoManager;
+import com.netflix.appinfo.EurekaInstanceConfig;
+import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.eureka.EurekaServerContext;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaRegistration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 
@@ -33,16 +36,17 @@ import static org.mockito.Mockito.mock;
  * @author Nikolaos Vastardis (email: Nikolaos.Vastardis@gla-rad.org)
  */
 @TestConfiguration
+//@Import({EurekaServerAutoConfiguration.class})
 public class TestingConfiguration {
 
     /**
-     * The Application Infor Manager mock.
+     * The Application Info Manager mock.
      *
      * @return  the Application Info Manager
      */
     @Bean
     public ApplicationInfoManager applicationInfoManager() {
-        return mock(ApplicationInfoManager.class);
+        return new ApplicationInfoManager(mock(EurekaInstanceConfig.class), mock(InstanceInfo.class));
     }
 
     /**

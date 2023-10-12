@@ -19,7 +19,9 @@ package org.grad.eNav.eureka.config;
 import de.codecentric.boot.admin.server.config.AdminServerProperties;
 import de.codecentric.boot.admin.server.web.client.HttpHeadersProvider;
 import jakarta.servlet.DispatcherType;
-import org.grad.eNav.eureka.config.keycloak.*;
+import org.grad.eNav.eureka.config.keycloak.KeycloakGrantedAuthoritiesMapper;
+import org.grad.eNav.eureka.config.keycloak.KeycloakJwtAuthenticationConverter;
+import org.grad.eNav.eureka.config.keycloak.KeycloakLogoutHandler;
 import org.grad.eNav.eureka.config.keycloak.KeycloakOAuth2AuthorizedClientProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
@@ -35,16 +37,22 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.*;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
@@ -52,6 +60,7 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.ForwardedHeaderFilter;
 
@@ -243,16 +252,23 @@ class SpringSecurityConfig {
 
     /**
      * Defines the security web-filter chains.
-     *
+     * </p>
+     * This is the main security chain of the service depending on keycloak.
      * Allows open access to the health and info actuator endpoints.
      * All other actuator endpoints are only available for the actuator role.
      * Finally, all other exchanges need to be authenticated.
+     *
+     * @param http the HTTP security
+     * @param clientRegistrationRepository the client registration repository
+     * @param restTemplate the employed REST template
+     * @return the JWT security filter chain
+     * @throws Exception for any operational exceptions
      */
-    @Order(Ordered.HIGHEST_PRECEDENCE)
+    @Order(2)
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http,
-                                           ClientRegistrationRepository clientRegistrationRepository,
-                                           RestTemplate restTemplate) throws Exception {
+    public SecurityFilterChain filterChainJwt(HttpSecurity http,
+                                              ClientRegistrationRepository clientRegistrationRepository,
+                                              RestTemplate restTemplate) throws Exception {
         // Setup a login success handler
         SavedRequestAwareAuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
         successHandler.setTargetUrlParameter("redirectTo");
@@ -273,7 +289,8 @@ class SpringSecurityConfig {
 //                .logoutSuccessHandler(new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository))
         );
         // Require authentication for all requests
-        http.authorizeHttpRequests(authorizeRequests -> authorizeRequests
+        http
+                .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers(EndpointRequest.to(
                                 InfoEndpoint.class,     //info endpoints
                                 HealthEndpoint.class    //health endpoints
@@ -281,6 +298,7 @@ class SpringSecurityConfig {
                         .requestMatchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR")
                         .requestMatchers(new AntPathRequestMatcher(this.adminServer.path("/assets/**"))).permitAll()
                         .requestMatchers(new AntPathRequestMatcher(this.adminServer.path("/variables.css"))).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/config/**")).hasRole("BASIC_AUTH")
                         .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
                         .requestMatchers(
                                 "/",        //root
@@ -304,6 +322,55 @@ class SpringSecurityConfig {
 
         // Build and return
         return http.build();
+    }
+
+    /**
+     * Defines the Basic Auth security web-filter chains.
+     * </p>
+     * This security filter chain only operates the Basic Auth security in
+     * the configuration endpoint "/config/**". This should allow all other
+     * service to connect and get their configuration.
+     *
+     * @param http the HTTP security
+     * @param clientRegistrationRepository the client registration repository
+     * @param restTemplate the employed REST template
+     * @return the JWT security filter chain
+     * @throws Exception for any operational exceptions
+     */
+    @Order(1)
+    @Bean
+    public SecurityFilterChain filterChainBasic(HttpSecurity http,
+                                                ClientRegistrationRepository clientRegistrationRepository,
+                                                RestTemplate restTemplate) throws Exception {
+        http
+                .securityMatcher(new AntPathRequestMatcher("/config/**"))
+                .authorizeHttpRequests(authorizeRequests -> authorizeRequests
+                        .anyRequest().hasRole("BASIC_AUTH")
+                )
+                .httpBasic(Customizer.withDefaults());
+
+        // Disable the CSRF
+        http.csrf(AbstractHttpConfigurer::disable);
+
+        // Build and return
+        return http.build();
+    }
+
+    /**
+     * An in-memory user details service that controls the access to the cloud
+     * configuration server in this service.
+     *
+     * @return the cloud configuration user details service
+     */
+    @Bean
+    UserDetailsService cloudConfigUserDetailsService() {
+        UserDetails user = User
+                .withUsername("user")
+                .password("{noop}password") // Spring Security 5 requires password storage format
+                .roles("BASIC_AUTH")
+                .build();
+
+        return new InMemoryUserDetailsManager(user);
     }
 
 }
