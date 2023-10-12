@@ -23,7 +23,6 @@ import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.eureka.EurekaServerContext;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaRegistration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 
@@ -36,7 +35,6 @@ import static org.mockito.Mockito.mock;
  * @author Nikolaos Vastardis (email: Nikolaos.Vastardis@gla-rad.org)
  */
 @TestConfiguration
-//@Import({EurekaServerAutoConfiguration.class})
 public class TestingConfiguration {
 
     /**
