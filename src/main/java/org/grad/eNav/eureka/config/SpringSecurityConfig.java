@@ -86,6 +86,18 @@ class SpringSecurityConfig {
     @Value("${keycloak.clientId:eureka}")
     private String clientId;
 
+    /**
+     * The Cloud Config Server Username.
+     */
+    @Value("${spring.cloud.config.server.git.username:user}")
+    private String configUsername;
+
+    /**
+     * The Cloud Config Server Password.
+     */
+    @Value("${spring.cloud.config.server.git.password:password}")
+    private String configPassword;
+
     // Class Variables
     private final AdminServerProperties adminServer;
     private final SecurityProperties security;
@@ -365,8 +377,8 @@ class SpringSecurityConfig {
     @Bean
     UserDetailsService cloudConfigUserDetailsService() {
         UserDetails user = User
-                .withUsername("user")
-                .password("{noop}password") // Spring Security 5 requires password storage format
+                .withUsername(this.configUsername)
+                .password("{noop}"+this.configPassword) // Spring Security 5 requires password storage format
                 .roles("BASIC_AUTH")
                 .build();
 
