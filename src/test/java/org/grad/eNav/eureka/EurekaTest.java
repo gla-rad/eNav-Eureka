@@ -16,24 +16,13 @@
 
 package org.grad.eNav.eureka;
 
-import com.netflix.eureka.cluster.PeerEurekaNodes;
-import com.netflix.eureka.registry.PeerAwareInstanceRegistryImpl;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
-import static org.mockito.Mockito.mock;
-
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.MOCK)
 @Import({TestingConfiguration.class})
 class EurekaTest {
-
-	@BeforeAll
-	static void setup(@Autowired PeerAwareInstanceRegistryImpl peerAwareInstanceRegistry) throws Exception {
-		peerAwareInstanceRegistry.init(mock(PeerEurekaNodes.class));
-	}
 
 	@Test
 	void contextLoads() {

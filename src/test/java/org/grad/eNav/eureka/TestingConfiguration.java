@@ -16,12 +16,6 @@
 
 package org.grad.eNav.eureka;
 
-import com.netflix.appinfo.ApplicationInfoManager;
-import com.netflix.appinfo.EurekaInstanceConfig;
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.EurekaClient;
-import com.netflix.discovery.EurekaClientConfig;
-import com.netflix.eureka.EurekaServerContext;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
@@ -36,46 +30,6 @@ import static org.mockito.Mockito.mock;
  */
 @TestConfiguration
 public class TestingConfiguration {
-
-    /**
-     * The Application Info Manager mock.
-     *
-     * @return  the Application Info Manager
-     */
-    @Bean
-    public ApplicationInfoManager applicationInfoManager() {
-        return new ApplicationInfoManager(mock(EurekaInstanceConfig.class), mock(InstanceInfo.class));
-    }
-
-    /**
-     * The Eureka Client Config mock.
-     *
-     * @return  the Eureka Client Config
-     */
-    @Bean
-    EurekaClientConfig eurekaClientConfig() {
-        return mock(EurekaClientConfig.class);
-    }
-
-    /**
-     * The Eureka Client mock.
-     *
-     * @return  the Eureka Client
-     */
-    @Bean
-    EurekaClient eurekaClient() {
-        return mock(EurekaClient.class);
-    }
-
-    /**
-     * The Eureka Server Context mock.
-     *
-     * @return  the Eureka Server Context
-     */
-    @Bean
-    EurekaServerContext eurekaServerContext() {
-        return mock(EurekaServerContext.class);
-    }
 
     /**
      * The OAuth2 Authorised Client Manager mock.

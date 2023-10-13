@@ -47,6 +47,7 @@ import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.*;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -60,7 +61,6 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.ForwardedHeaderFilter;
 
@@ -89,13 +89,13 @@ class SpringSecurityConfig {
     /**
      * The Cloud Config Server Username.
      */
-    @Value("${spring.cloud.config.server.git.username:user}")
+    @Value("${spring.cloud.config.username:user}")
     private String configUsername;
 
     /**
      * The Cloud Config Server Password.
      */
-    @Value("${spring.cloud.config.server.git.password:password}")
+    @Value("${spring.cloud.config.password:password}")
     private String configPassword;
 
     // Class Variables
@@ -112,7 +112,6 @@ class SpringSecurityConfig {
                                 SecurityProperties securityProperties) {
         this.adminServer = adminServerProperties;
         this.security = securityProperties;
-
     }
 
     /**
@@ -376,12 +375,12 @@ class SpringSecurityConfig {
      */
     @Bean
     UserDetailsService cloudConfigUserDetailsService() {
-        UserDetails user = User
+        final PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+        final UserDetails user = User
                 .withUsername(this.configUsername)
-                .password("{noop}"+this.configPassword) // Spring Security 5 requires password storage format
+                .password(encoder.encode(this.configPassword)) // Spring Security 5 requires password storage format
                 .roles("BASIC_AUTH")
                 .build();
-
         return new InMemoryUserDetailsManager(user);
     }
 
