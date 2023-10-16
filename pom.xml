@@ -11,7 +11,7 @@
 	</parent>
 
 	<groupId>org.grad</groupId>
-	<artifactId>eNavEureka</artifactId>
+	<artifactId>eureka</artifactId>
 	<version>0.0.3-SNAPSHOT</version>
 	<name>Eureka</name>
 	<description>Eureka Server For e-Navigation</description>
