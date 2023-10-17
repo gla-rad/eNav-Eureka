@@ -106,9 +106,9 @@ locally.
 In order to run the image in a **Cloud Config** configuration, you just need
 to provide the environment variables that allow is to connect to the online
 configuration repository. This is assumed to be provided through a VCS system
-like [Git](https://git-scm.com/downloads.
+like [Git](https://git-scm.com/downloads).
 
-The available configuration parameters are:
+The available environment variables are:
 
     ENAV_CONFIG_ENCRYPTION_KEY=<encryption key>;
     ENAV_CONFIG_REPO_URL=<The online location of the Git configuration repo>
@@ -116,8 +116,8 @@ The available configuration parameters are:
     ENAV_CONFIG_REPO_USERNAME=<Git configuration repo username>
     ENAV_CONFIG_REPO_PASSWORD=<Git configuration repo password>
     
-The parameters will be picked up and used to populate the default
-**bootstrap.properties** of the service that look as follows:
+The variables will be picked up and used to populate the default
+**bootstrap.properties** of the service that looks as follows:
 
     server.port=8761
     spring.application.name=eureka
@@ -134,11 +134,11 @@ The parameters will be picked up and used to populate the default
     # Enable parameter encryption
     encrypt.key=${ENAV_CONFIG_ENCRYPTION_KEY}
 
-As you can see, the the service is called **eureka** and uses the **8761**
-port when running. Also the configuration and the encryption/decryption 
-functionality is available under the **/config/**  path. Basic authentication
-is used just for this path, so make sure this is made publicly available as
-security concerns are involved.
+As you can see, the service is called **eureka** and uses the **8761** port when
+running. Also, the configuration and the encryption/decryption functionality is
+available under the **/config/**  path. Basic authentication is used just for
+this path, so make sure this is made publicly available as security concerns are
+involved.
 
 To run the image, along with the aforementioned environment variables, you can
 use the following command:
