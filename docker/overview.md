@@ -121,6 +121,7 @@ The variables will be picked up and used to populate the default
 
     server.port=8761
     spring.application.name=eureka
+    spring.application.version=<application.version>
     
     # The Spring Cloud Server Config
     spring.cloud.config.server.bootstrap=true
@@ -188,8 +189,16 @@ environment variable inputs:
     encrypt.key=
 
 While the application properties need to provide the service with an OAuth2.0
-server like keycloak:
+server like keycloak, logging configuration etc.:
 
+    # Configuration Variables
+    service.variable.hostname=<service.hostname>
+    service.variable.eureka.server.name=<eureka.server.name>
+    service.variable.eureka.server.port=<eureka.server.port>
+    service.variable.keycloak.server.name=<keycloak.server.name>
+    service.variable.keycloak.server.port=<keycloak.server.port>
+    service.variable.keycloak.server.realm=<keycloak.realm>
+    
     # Management Endpoints
     management.endpoints.web.exposure.include=*
     management.endpoint.health.show-details=when_authorized
@@ -199,32 +208,38 @@ server like keycloak:
     spring.boot.admin.instance-proxy.ignored-headers=Cookie,Set-Cookie
     
     # Eureka Client Configuration
-    eureka.client.service-url.defaultZone=http://localhost:8761/eureka/
+    eureka.client.enabled=true
+    eureka.client.service-url.defaultZone=http://${service.variable.eureka.server.name}:${service.variable.eureka.server.port}/eureka/
     eureka.client.register-with-eureka=true
-    eureka.client.initialInstanceInfoReplicationIntervalSeconds=5
-    eureka.client.registryFetchIntervalSeconds=30
+    eureka.client.fetch-registry=true
+    eureka.client.registryFetchIntervalSeconds=5
+    eureka.instance.hostname=localhost
+    eureka.instance.preferIpAddress=false
+    eureka.instance.leaseRenewalIntervalInSeconds=10
+    eureka.instance.metadata-map.startup=${random.int}
     
     # Keycloak Configuration
-    spring.security.oauth2.client.registration.keycloak.provider=keycloak
     spring.security.oauth2.client.registration.keycloak.client-id=eureka
     spring.security.oauth2.client.registration.keycloak.client-secret=<changeit>
+    spring.security.oauth2.client.registration.keycloak.client-name=Keycloak
+    spring.security.oauth2.client.registration.keycloak.provider=keycloak
     spring.security.oauth2.client.registration.keycloak.authorization-grant-type=authorization_code
     spring.security.oauth2.client.registration.keycloak.scope=openid
     spring.security.oauth2.client.registration.keycloak.redirect-uri={baseUrl}/login/oauth2/code/{registrationId}
-    spring.security.oauth2.client.provider.keycloak.issuer-uri=http://<keycloak.server.com>:8090/realms/<realm>
+    spring.security.oauth2.client.provider.keycloak.issuer-uri=http://${service.variable.keycloak.server.name}:${service.variable.keycloak.server.port}/realms/${service.variable.keycloak.server.realm}
     spring.security.oauth2.client.provider.keycloak.user-name-attribute=preferred_username
-    spring.security.oauth2.resourceserver.jwt.issuer-uri=http://<keycloak.server.com>:8090/realms/<realm>
+    spring.security.oauth2.resourceserver.jwt.issuer-uri=http://${service.variable.keycloak.server.name}:${service.variable.keycloak.server.port}/realms/${service.variable.keycloak.server.realm}
     
     # Spring Boot Admin Security
     spring.security.oauth2.client.registration.sba.client-id=eureka
     spring.security.oauth2.client.registration.sba.client-secret=<changeit>
     spring.security.oauth2.client.registration.sba.authorization-grant-type=client_credentials
     spring.security.oauth2.client.registration.sba.scope=web-origins,openid
-    spring.security.oauth2.client.provider.sba.token-uri=http://<keycloak.server.com>:8090/realms/<realm>/protocol/openid-connect/token
+    spring.security.oauth2.client.provider.sba.token-uri=http://${service.variable.keycloak.server.name}:${service.variable.keycloak.server.port}/realms/${service.variable.keycloak.server.realm}/protocol/openid-connect/token
 
 ## Operation
 
-In order for the e-Navigastion Service Architecture to correctly route the
+In order for the e-Navigation Service Architecture to correctly route the
 incoming requests to the appropriate microservices, it first needs to know how
 to locate each of them. This can be achieved either by the provision of a
 configuration file with the available routes, or dynamically by a service
