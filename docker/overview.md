@@ -132,6 +132,10 @@ The variables will be picked up and used to populate the default
     spring.cloud.config.server.git.password=${ENAV_CONFIG_REPO_PASSWORD}
     spring.cloud.config.server.git.default-label=${ENAV_CONFIG_REPO_BRANCH}
 
+    # The Spring Cloud Client Config
+    spring.cloud.config.username=${ENAV_CLOUD_CONFIG_USERNAME}
+    spring.cloud.config.password=${ENAV_CLOUD_CONFIG_PASSWORD}
+
     # Enable parameter encryption
     encrypt.key=${ENAV_CONFIG_ENCRYPTION_KEY}
 
@@ -151,6 +155,8 @@ use the following command:
         -e ENAV_CONFIG_REPO_USERNAME='<git repository username>' \
         -e ENAV_CONFIG_REPO_PASSWORD='<git repository passord>' \
         -e ENAV_CONFIG_ENCRYPTION_KEY='<key to be used for param encryption/decryption>' \
+        -e ENAV_CLOUD_CONFIG_USERNAME='<username for clients to access the config>' \
+        -e ENAV_CLOUD_CONFIG_PASSOWRD='<password for clients to access the config>' \
         <image-id>
 
 ### Local Config Configuration
@@ -186,6 +192,8 @@ environment variable inputs:
     spring.cloud.config.server.git.password=
     spring.cloud.config.server.git.default-label=
     spring.cloud.config.server.git.clone-on-start=
+    spring.cloud.config.username=
+    spring.cloud.config.password=
     encrypt.key=
 
 While the application properties need to provide the service with an OAuth2.0
