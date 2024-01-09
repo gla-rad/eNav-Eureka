@@ -179,7 +179,7 @@ Then we can run the service in the following way:
 
     java -jar \
         --spring.config.location=optional:classpath:/,optional:file:<config_dir>/ \
-        <eurekajar>
+        <eureka.jar>
 
 Examples of the required properties files can be seen below.
 
@@ -284,8 +284,8 @@ discuss what you would like to change.
 Please make sure to update tests as appropriate.
 
 ## License
-Distributed under the Apache License, Version 2.0. See [LICENSE](./LICENSE) for
-more information.
+Distributed under the Apache License, Version 2.0. See [LICENSE](./LICENSE.md)
+for more information.
 
 ## Contact
 Nikolaos Vastardis - Nikolaos.Vastardis@gla-rad.org
