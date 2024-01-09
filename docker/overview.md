@@ -268,7 +268,7 @@ registry component, such as this.
 
 Apart from its primary operation, the “Eureka” service is also able to provide
 extensive monitoring on the internal architecture components through the
-introduction of the Spring Boot Admin1 web interface. This is a separate module
+introduction of the Spring Boot Admin web interface. This is a separate module
 that uses the Springboot actuator monitoring endpoints (if available) to display
 all the relevant information in a single location. It is noted that the actuator
 endpoints can be individually enabled for each of the involved microservices,

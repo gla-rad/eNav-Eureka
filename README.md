@@ -267,15 +267,36 @@ server like keycloak, logging configuration etc.:
     spring.security.oauth2.client.provider.sba.token-uri=http://${service.variable.keycloak.server.name}:${service.variable.keycloak.server.port}/realms/${service.variable.keycloak.server.realm}/protocol/openid-connect/token
 
 ### Operation
-The e-Navigation Eureka service in a nutshell is a service registry that allows 
-other microservices included in the GRAD e-Navigation Service Architecture to
-register to it and become discoverable. This way, there is no need to provide
-the IP addresses and port configurations manually in the system. In addition,
-through the Springboot Admin module it allows a thorough administration of
-the architecture services. Finally, if the cloud configuration mode is enabled,
-as mentioned previously, it is able to expose an online configuration
-repository, thus removing the requirement of supplying individual configuration
-files to the corresponding services.
+In order for the e-Navigation Service Architecture to correctly route the
+incoming requests to the appropriate microservices, it first needs to know how
+to locate each of them. This can be achieved either by the provision of a
+configuration file with the available routes, or dynamically by a service
+registry component, such as this.
+
+Apart from its primary operation, the “Eureka” service is also able to provide
+extensive monitoring on the internal architecture components through the
+introduction of the Spring Boot Admin web interface. This is a separate module
+that uses the Springboot actuator monitoring endpoints (if available) to display
+all the relevant information in a single location. It is noted that the actuator
+endpoints can be individually enabled for each of the involved microservices,
+and are also protected by the OpenID Connect authorisation server.
+
+In order to avoid unauthorised access to the actuator endpoints and the “Eureka”
+service administration interface, the Keycloak role-based authorisation is being
+utilised and a set of specific roles have been introduced. Under the current
+configuration, actuators are only accessible for users with the “actuator” role,
+while the “Eureka” administration interface is only accessible for users with
+the “admin” role. The “Eureka” microservice service account is granted with the
+“actuator” role for each of the monitored applications. The “Eureka” “admin”
+role on the other hand is applicable only for human users. It has to be stressed
+at this point that the aforementioned technique depends on all microservices
+explicitly requiring the “actuator” role for requests on their actuator
+endpoints.
+
+Finally, if the cloud configuration mode is enabled, as mentioned previously,
+it is able to expose an online configuration repository, thus removing the
+requirement of supplying individual configuration files to the corresponding
+services.
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to
