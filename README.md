@@ -1,4 +1,4 @@
-# e-Navigation Eureka Server
+# The GLA e-Navigation Service Architecture - Eureka Service
 
 The Eureka repository contains the implementation of a simple service discovery
 microservice for the GRAD e-Navigation Service Architecture, based on the
