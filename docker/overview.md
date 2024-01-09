@@ -2,12 +2,12 @@
 
 ## Quick Reference
 * Maintained by:<br/>
-[GRAD](https://www.gla-rad.org/)
+  [GRAD](https://www.gla-rad.org/)
 * Where to get help:<br/>
-[Unix & Linux](https://unix.stackexchange.com/help/on-topic),
-[Stack Overflow](https://stackoverflow.com/help/on-topic),
-[GRAD Wiki](https://rnavlab.gla-rad.org/wiki/E-Navigation_Service_Architecture)
-(for GRAD members only)
+  [Unix & Linux](https://unix.stackexchange.com/help/on-topic),
+  [Stack Overflow](https://stackoverflow.com/help/on-topic),
+  [GRAD Wiki](https://rnavlab.gla-rad.org/wiki/E-Navigation_Service_Architecture)
+  (for GRAD members only)
 
 ## What is e-Navigation
 The maritime domain is facing a number for challenges, mainly due to the
@@ -30,8 +30,8 @@ by electronic means to enhance berth-to-berth navigation and related services,
 for safety and security at sea and protection of the marine environment.
 </div>
 
-In response, the International Association of Lighthouse Authorities 
-([IALA](https://www.iala-aism.org/)) published a number of guidelines such as 
+In response, the International Association of Lighthouse Authorities
+([IALA](https://www.iala-aism.org/)) published a number of guidelines such as
 [G1113](https://www.iala-aism.org/product/g1113/) and
 [G1114](https://www.iala-aism.org/product/g1114/), which establish the relevant
 principles for the design and implementation of harmonised shore-based technical
@@ -61,11 +61,11 @@ provision of the future GLA e-Navigation services.
 As a concept, the CSSA is based on the Service Oriented Architecture (SOA). A
 pure-SOA approach however was found to be a bit cumbersome for the GLA
 operations, as it usually requires the entire IT landscape being compatible,
-resulting in high investment costs [6]. In the context of e-Navigation, this
-could become a serious problem, since different components of the system are
-designed by independent teams/manufacturers. Instead, a more flexible
-microservice architecture was opted for. This is based on a break-down of the
-larger functional blocks into small independent services, each responsible for
+resulting in high investment costs. In the context of e-Navigation, this could
+become a serious problem, since different components of the system are designed
+by independent teams/manufacturers. Instead, a more flexible microservice
+architecture was opted for. This is based on a break-down of the larger
+functional blocks into small independent services, each responsible for
 performing its own orchestration, maintaining its own data and communicating
 through lightweight mechanisms such as HTTP/HTTPS. It should be pointed out that
 SOA and the microservice architecture are not necessarily that different.
@@ -95,16 +95,16 @@ that provides support for externalized configuration in a distributed system.
 ## How to use this image
 
 This image can be used in two ways (based on the use or not of the Spring Cloud
-Config server). 
+Config server).
 * Enabling the cloud config server and distributing the configurations located
-in an online repository.
+  in an online repository.
 * Disabling the cloud config server and using the configuration provided
-locally.
+  locally.
 
 ### Cloud Config Configuration
 
 In order to run the image in a **Cloud Config** configuration, you just need
-to provide the environment variables that allow is to connect to the online
+to provide the environment variables that allow it to connect to the online
 configuration repository. This is assumed to be provided through a VCS system
 like [Git](https://git-scm.com/downloads).
 
@@ -115,7 +115,7 @@ The available environment variables are:
     ENAV_CONFIG_REPO_BRANCH=<branch of the Git configuration repo
     ENAV_CONFIG_REPO_USERNAME=<Git configuration repo username>
     ENAV_CONFIG_REPO_PASSWORD=<Git configuration repo password>
-    
+
 The variables will be picked up and used to populate the default
 **bootstrap.properties** of the service that looks as follows:
 
@@ -142,8 +142,8 @@ The variables will be picked up and used to populate the default
 As you can see, the service is called **eureka** and uses the **8761** port when
 running. Also, the configuration and the encryption/decryption functionality is
 available under the **/config/**  path. Basic authentication is used just for
-this path, so make sure this is made publicly available as security concerns are
-involved.
+this path, so make sure this is are made publicly available as security concerns
+are involved.
 
 To run the image, along with the aforementioned environment variables, you can
 use the following command:
@@ -162,7 +162,7 @@ use the following command:
 ### Local Config Configuration
 
 In order to run the image in a **Local Config** configuration, you just need
-to mount a local configuration directory that contains the necessary 
+to mount a local configuration directory that contains the necessary
 **.properties** files (including bootstrap) into the **/conf** directory of the
 image.
 
@@ -177,7 +177,7 @@ Examples of the required properties files can be seen below.
 
 For bootstrapping, we need to disable the cloud config server, and clear our the
 environment variable inputs:
-    
+
     server.port=8761
     spring.application.name=eureka
     
