@@ -5,6 +5,7 @@ microservice for the GRAD e-Navigation Service Architecture, based on the
 well-known Springboot/Netflix eureka server.
 
 ## What is e-Navigation
+
 The maritime domain is facing a number for challenges, mainly due to the
 increasing demand, that may increase the risk of an accident or loss of life.
 These challenges require technological solutions and e-Navigation is one such
@@ -46,6 +47,7 @@ Platform ([MCP](https://maritimeconnectivity.net/)) provides an actual
 implementation of a decentralised framework that supports SECOM.
 
 ## What is the GRAD e-Navigation Service Architecture
+
 The GLA follow the developments on e-Navigation closely, contributing through
 their role as an IALA member whenever possible. As part of their efforts, a
 prototype GLA e-Navigation Service Architecture is being developed by the GLA
@@ -67,6 +69,7 @@ Sometimes, microservices are even considered as an extension or a more
 fine-grained version of SOA.
 
 ## The e-Navigation Eureka Service
+
 This is the internal component the handles the service discovery and facilitates
 the microservice inter-communication. It should not be confused with a MCP MSR
 component, as it is only focused on the discoverability of the internal
@@ -85,7 +88,8 @@ server for monitoring, as well as a
 [Spring Cloud Config](https://spring.io/projects/spring-cloud-config) server
 that provides support for externalized configuration in a distributed system.
 
-### Development Setup
+## Development Setup
+
 To start developing just open the repository with the IDE of your choice. The
 original code has been generated using
 [Intellij IDEA](https://www.jetbrains.com/idea). Just open it by going to:
@@ -97,7 +101,8 @@ Provide the URL of the current repository and the local directory you want.
 You don't have to use it if you have another preference. Just make sure you
 update the *.gitignore* file appropriately.
 
-### Build Setup
+## Build Setup
+
 The project is using the latest OpenJDK 21 to build, although earlier versions
 should also work.
 
@@ -106,15 +111,17 @@ IDE. Nothing exotic about the goals, just clean and install should do:
 
     mvn clean package
 
-### How to Run
-This image can be used in two ways (based on the use or not of the Spring Cloud
+## How to Run
+
+This service can be used in two ways (based on the use or not of the Spring Cloud
 Config server).
 * Enabling the cloud config server and distributing the configurations located
   in an online repository.
 * Disabling the cloud config server and using the configuration provided
   locally.
 
-#### Cloud Config Configuration
+### Cloud Config Configuration
+
 In order to run the service in a **Cloud Config** configuration, you just need
 to provide the environment variables that allow it to connect to the online
 configuration repository. This is assumed to be provided through a VCS system
@@ -170,10 +177,11 @@ use the following command:
         -DENAV_CLOUD_CONFIG_PASSOWRD='<password for clients to access the config>' \
         <eureka.jar>
 
-#### Local Config Configuration
+### Local Config Configuration
+
 In order to run the service in a **Local Config** configuration, you just need
-to create a local configuration directory that contains the necessary
-**.properties** files (including bootstrap) of the service.
+to provide a local configuration directory that contains the necessary
+**.properties** files (including bootstrap).
 
 Then we can run the service in the following way:
 
@@ -266,7 +274,8 @@ server like keycloak, logging configuration etc.:
     spring.security.oauth2.client.registration.sba.scope=web-origins,openid
     spring.security.oauth2.client.provider.sba.token-uri=http://${service.variable.keycloak.server.name}:${service.variable.keycloak.server.port}/realms/${service.variable.keycloak.server.realm}/protocol/openid-connect/token
 
-### Operation
+## Operation
+
 In order for the e-Navigation Service Architecture to correctly route the
 incoming requests to the appropriate microservices, it first needs to know how
 to locate each of them. This can be achieved either by the provision of a
@@ -299,14 +308,17 @@ requirement of supplying individual configuration files to the corresponding
 services.
 
 ## Contributing
+
 Pull requests are welcome. For major changes, please open an issue first to
 discuss what you would like to change.
 
 Please make sure to update tests as appropriate.
 
 ## License
+
 Distributed under the Apache License, Version 2.0. See [LICENSE](./LICENSE.md)
 for more information.
 
 ## Contact
+
 Nikolaos Vastardis - Nikolaos.Vastardis@gla-rad.org
