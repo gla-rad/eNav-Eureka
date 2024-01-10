@@ -183,7 +183,7 @@ Then we can run the service in the following way:
 
 Examples of the required properties files can be seen below.
 
-For bootstrapping, we need to disable the cloud config server, and clear our the
+For bootstrapping, we need to disable the cloud config server, and clear out the
 environment variable inputs:
 
     server.port=8761
