@@ -27,7 +27,7 @@ COPY target/eureka-0.0.3-SNAPSHOT.jar /app/
 
 # Create a modules path just in case
 ENV LOADER_PATH /modules
-RUN mkdir $LOADER_PATH && apk --no-cache add curl
+RUN mkdir $LOADER_PATH && apk --no-cache add curl, git
 
 # Set the environment variable to activate the "prod" profile
 ENV SPRING_PROFILES_ACTIVE=prod
@@ -38,4 +38,4 @@ ENV CONFIG_DIR=/conf
 EXPOSE 8761
 
 #CMD ["java", "-jar", "eureka-0.0.3-SNAPSHOT.jar", "--spring.config.location=optional:classpath:/,optional:file:${CONFIG_DIR}/"]
-CMD ["/bin/sh", "-c", "sleep 3600"]
+CMD ["/bin/sh", "-c", "sleep 6000"]
