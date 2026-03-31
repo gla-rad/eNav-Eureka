@@ -15,7 +15,7 @@
 #
 
 # Use the official OpenJDK 21 image as the base image
-FROM eclipse-temurin:21-jre-alpine-3.22
+FROM eclipse-temurin:21-jre-alpine
 
 LABEL org.opencontainers.image.source="https://github.com/gla-rad/eNav-Eureka"
 
