@@ -27,7 +27,7 @@ COPY target/eureka-0.0.3-SNAPSHOT.jar /app/
 
 # Create a modules path just in case
 ENV LOADER_PATH /modules
-RUN mkdir $LOADER_PATH && apk --no-cache add curl, git
+RUN mkdir $LOADER_PATH && apk --no-cache add curl && apk --no-cache git
 
 # Set the environment variable to activate the "prod" profile
 ENV SPRING_PROFILES_ACTIVE=prod
