@@ -38,4 +38,3 @@ ENV CONFIG_DIR=/conf
 EXPOSE 8761
 
 CMD ["java", "-jar", "eureka-0.0.3-SNAPSHOT.jar", "--spring.config.location=optional:classpath:/,optional:file:${CONFIG_DIR}/"]
-#CMD ["/bin/sh", "-c", "sleep 6000"]
