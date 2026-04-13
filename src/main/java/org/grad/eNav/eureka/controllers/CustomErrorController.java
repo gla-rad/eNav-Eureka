@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 GLA Research and Development Directorate
+ * Copyright (c) 2026 GLA Research and Development Directorate
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
  * <p/>
  * <a>https://github.com/spring-cloud/spring-cloud-netflix/issues/4145</a>
  * <p/>
- * To resulve this a temporary fix is to override the error mapping of the
+ * To resolve this a temporary fix is to override the error mapping of the
  * service so that the clients get the correct response and re-register.
  *
  * @author Nikolaos Vastardis (email: Nikolaos.Vastardis@gla-rad.org)
