@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 GLA Research and Development Directorate
+ * Copyright (c) 2026 GLA Research and Development Directorate
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,11 @@ import org.grad.eNav.eureka.config.keycloak.KeycloakJwtAuthenticationConverter;
 import org.grad.eNav.eureka.config.keycloak.KeycloakLogoutHandler;
 import org.grad.eNav.eureka.config.keycloak.KeycloakOAuth2AuthorizedClientProvider;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
-import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.boot.actuate.info.InfoEndpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
+import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
+import org.springframework.boot.security.autoconfigure.SecurityProperties;
+import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -62,7 +62,6 @@ import org.springframework.security.web.authentication.session.RegisterSessionAu
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.ForwardedHeaderFilter;
 
@@ -345,9 +344,9 @@ class SpringSecurityConfig {
                                 HealthEndpoint.class    //health endpoints
                         )).permitAll()
                         .requestMatchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR")
-                        .requestMatchers(new AntPathRequestMatcher(this.adminServer.path("/assets/**"))).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher(this.adminServer.path("/variables.css"))).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/config/**")).hasRole("BASIC_AUTH")
+                        .requestMatchers(this.adminServer.path("/assets/**")).permitAll()
+                        .requestMatchers(this.adminServer.path("/variables.css")).permitAll()
+                        .requestMatchers("/config/**").hasRole("BASIC_AUTH")
                         .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
                         .requestMatchers(
                                 "/",        //root
@@ -392,7 +391,7 @@ class SpringSecurityConfig {
                                                 ClientRegistrationRepository clientRegistrationRepository,
                                                 RestTemplate restTemplate) throws Exception {
         http
-                .securityMatcher(new AntPathRequestMatcher("/config/**"))
+                .securityMatcher("/config/**")
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .anyRequest().hasRole("BASIC_AUTH")
                 )

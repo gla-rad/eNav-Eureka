@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 GLA Research and Development Directorate
+ * Copyright (c) 2026 GLA Research and Development Directorate
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,12 +28,12 @@ import reactor.netty.http.client.HttpClient;
 import javax.net.ssl.SSLException;
 
 /**
- * The Boostrap Configuration.
+ * The HTTP Trust Configuration.
  *
  * @author Nikolaos Vastardis (email: Nikolaos.Vastardis@gla-rad.org)
  */
 @Configuration
-public class BootstrapConfig {
+public class HttpsTrustConfig {
 
     /**
      * Normally internal clients use plain HTTP but the API-Gateway might be
